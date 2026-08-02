@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { margin: 0; background: transparent; display: flex; justify-content: center; align-items: center; }
+    img { width: 120px; height: 120px; object-fit: contain; }
+  </style>
+</head>
+<body>
+  <img id="weatherIcon" src="" />
+
+  <script>
+    // 1. 定義天氣號碼對應嘅 Icon URL (對應地圖 Mapping Object)
+    const iconMap = {
+      "tc1":    "https://www.hko.gov.hk/images/HKOWarningSymbols/tc1.gif",
+      "tc3":    "https://www.hko.gov.hk/images/HKOWarningSymbols/tc3.gif",
+      "tc8ne":  "https://www.hko.gov.hk/images/HKOWarningSymbols/tc8ne.gif",
+      "800":    "https://www.hko.gov.hk/images/HKOWarningSymbols/warn800_12_ts.png", // 雷暴
+      "raina":  "https://www.hko.gov.hk/images/HKOWarningSymbols/raina.gif",
+      "rainr":  "https://www.hko.gov.hk/images/HKOWarningSymbols/rainr.gif",
+      "rainb":  "https://www.hko.gov.hk/images/HKOWarningSymbols/rainb.gif"
+    };
+
+    // 2. Fetch 外來天氣 API (例如 HKO Open Data)
+    async function updateWeatherIcon() {
+      try {
+        const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
+        const data = await res.json();
+
+        console.log(JSON.stringify(data, null, 2));
+        
+        // 假設從 API 攞到嘅 icon 號碼
+        const iconCode = data.weatherForecast[0].ForecastIcon; 
+
+        // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
+        const imgElement = document.getElementById('weatherIcon');
+        //if (iconMap[iconCode]) {
+        //  imgElement.src = iconMap[iconCode];
+        //} else {
+          // Default Icon (預設圖片)
+        imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
+        //}
+      } catch (err) {
+        console.error("Fetch weather icon error:", err);
+      }
+    }
+
+    updateWeatherIcon();
+    // 每 10 分鐘自動更新一次
+    setInterval(updateWeatherIcon, 600000);
+  </script>
+</body>
+</html>
