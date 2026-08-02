@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <style>
     body { margin: 0; background: transparent; display: flex; justify-content: center; align-items: center; }
-    img { width: 120px; height: 120px; object-fit: contain; }
+    img { width: 60px; height: 60px; object-fit: contain; }
   </style>
 </head>
 <body>
@@ -22,6 +22,15 @@
       "rainb":  "https://www.hko.gov.hk/images/HKOWarningSymbols/rainb.gif"
     };
 
+    // 1. 讀取 URL 網址裡面的 ?d= 參數
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // 如果冇傳 ?d=，預設為 0 (翌日)；並用 parseInt 確保係數字
+    let dayIndex = parseInt(urlParams.get('d'), 10);
+    if (isNaN(dayIndex) || dayIndex < 0) {
+      dayIndex = 0; 
+    }
+
     // 2. Fetch 外來天氣 API (例如 HKO Open Data)
     async function updateWeatherIcon() {
       try {
@@ -31,7 +40,7 @@
         console.log(JSON.stringify(data, null, 2));
         
         // 假設從 API 攞到嘅 icon 號碼
-        const iconCode = data.weatherForecast[0].ForecastIcon; 
+        const iconCode = data.weatherForecast[dayIndex].ForecastIcon; 
 
         // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
         const imgElement = document.getElementById('weatherIcon');
