@@ -34,22 +34,46 @@
     // 2. Fetch 外來天氣 API (例如 HKO Open Data)
     async function updateWeatherIcon() {
       try {
-        const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
-        const data = await res.json();
+        if (dayIndex < 9) {
+          res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
+          
+          const data = await res.json();
 
-        console.log(JSON.stringify(data, null, 2));
-        
-        // 假設從 API 攞到嘅 icon 號碼
-        const iconCode = data.weatherForecast[dayIndex].ForecastIcon; 
+          console.log(dayIndex);
+          console.log(JSON.stringify(data, null, 2));
+          
+          // 假設從 API 攞到嘅 icon 號碼
+          const iconCode = data.weatherForecast[dayIndex].ForecastIcon; 
 
-        // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
-        const imgElement = document.getElementById('weatherIcon');
-        //if (iconMap[iconCode]) {
-        //  imgElement.src = iconMap[iconCode];
-        //} else {
-          // Default Icon (預設圖片)
-        imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
+          // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
+          const imgElement = document.getElementById('weatherIcon');
+          //if (iconMap[iconCode]) {
+          //  imgElement.src = iconMap[iconCode];
+          //} else {
+            // Default Icon (預設圖片)
+          imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
+        } else if (dayIndex == 99) {
+          res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+          
+          const data = await res.json();
+
+          console.log(dayIndex);
+          console.log(JSON.stringify(data, null, 2));
+          
+          // 假設從 API 攞到嘅 icon 號碼
+          const iconCode = data.icon; 
+
+          // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
+          const imgElement = document.getElementById('weatherIcon');
+          //if (iconMap[iconCode]) {
+          //  imgElement.src = iconMap[iconCode];
+          //} else {
+            // Default Icon (預設圖片)
+          imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
+        }
+       
         //}
+
       } catch (err) {
         console.error("Fetch weather icon error:", err);
       }
