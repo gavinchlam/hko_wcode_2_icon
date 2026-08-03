@@ -3,7 +3,18 @@
 <head>
   <meta charset="utf-8">
   <style>
-    body { margin: 0; background: transparent; display: flex; justify-content: center; align-items: center; }
+    body {
+      margin: 0;
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    body.ready {
+      opacity: 1;
+    }
     #weatherIconContainer {
       display: flex;
       flex-wrap: wrap;
@@ -53,22 +64,37 @@
       const container = document.getElementById('weatherIconContainer');
       container.innerHTML = '';
 
-      if (type == "forecast") {
-        sources.forEach((src) => {
-          const img = document.createElement('img');
-          img.src = src;
-          img.alt = 'weather icon';
-          container.appendChild(img);
-        });
-      } else if (type == "warning") {
-        sources.forEach((src) => {
-          const img = document.createElement('img');
-          img.src = src;
-          img.alt = 'weather icon';
+      const images = sources.map((src) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'weather icon';
+        if (type === 'warning') {
           img.classList.add('warning-icon');
-          container.appendChild(img);
-        });
+        }
+        container.appendChild(img);
+        return img;
+      });
+
+      if (images.length === 0) {
+        document.body.classList.add('ready');
+        return;
       }
+
+      let loadedCount = 0;
+      images.forEach((img) => {
+        img.onload = () => {
+          loadedCount += 1;
+          if (loadedCount === images.length) {
+            document.body.classList.add('ready');
+          }
+        };
+        img.onerror = () => {
+          loadedCount += 1;
+          if (loadedCount === images.length) {
+            document.body.classList.add('ready');
+          }
+        };
+      });
     }
 
     // 2. Fetch 外來天氣 API (例如 HKO Open Data)
