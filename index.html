@@ -16,6 +16,10 @@
       filter: contrast(250%) brightness(60%) drop-shadow(0 0 0.5px #000);
       transition: opacity 0.2s;
     }
+    .warning-icon {
+      width: 40px;
+      height: 40px;
+    }
 
   </style>
 </head>
@@ -51,6 +55,7 @@
         const img = document.createElement('img');
         img.src = src;
         img.alt = 'weather icon';
+        img.classList.add('warning-icon');
         container.appendChild(img);
       });
     }
