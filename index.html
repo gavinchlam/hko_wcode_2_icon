@@ -4,19 +4,23 @@
   <meta charset="utf-8">
   <style>
     body { margin: 0; background: transparent; display: flex; justify-content: center; align-items: center; }
+    #weatherIconContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
     img {
       width: 60px;
       height: 60px;
       object-fit: contain;
       filter: contrast(250%) brightness(60%) drop-shadow(0 0 0.5px #000);
-      
       transition: opacity 0.2s;
     }
 
   </style>
 </head>
 <body>
-  <img id="weatherIcon" src="" />
+  <div id="weatherIconContainer"></div>
 
   <script>
     // 1. 定義天氣號碼對應嘅 Icon URL (對應地圖 Mapping Object)
@@ -39,14 +43,25 @@
       dayIndex = 0; 
     }
 
+    function renderWeatherIcons(sources) {
+      const container = document.getElementById('weatherIconContainer');
+      container.innerHTML = '';
+
+      sources.forEach((src) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'weather icon';
+        container.appendChild(img);
+      });
+    }
+
     // 2. Fetch 外來天氣 API (例如 HKO Open Data)
     async function updateWeatherIcon() {
       try {
         let iconCode = '';
-        const imgElement = document.getElementById('weatherIcon');
 
         if (dayIndex < 9) {
-          res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
+          const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
           
           const data = await res.json();
 
@@ -61,16 +76,14 @@
           //  imgElement.src = iconMap[iconCode];
           //} else {
             // Default Icon (預設圖片)
-          //const imgLoader = new Image();
-          //const targetUrl = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
-          imgElement.src = `./icons/pic${iconCode}.png`;
+          renderWeatherIcons([`./icons/pic${iconCode}.png`]);
           //imgLoader.onload = () => {
             // 確定圖片下載完畢才賦值給 DOM
           //  document.getElementById('weatherIcon').src = targetUrl;
           //};
           // imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
-        } else if (dayIndex == 99) {
-          res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+        } else if (dayIndex == 99) { // 即時天氣
+          const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en');
           
           const data = await res.json();
 
@@ -86,19 +99,85 @@
           //} else {
             // Default Icon (預設圖片)
           //imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
-          imgElement.src = `./icons/pic${iconCode}.png`;
-        }
-       
-        //}
+          renderWeatherIcons([`./icons/pic${iconCode}.png`]);
+        } else if (dayIndex == 100) { //天氣警告一覽
+          const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en');
+          
+          const data = await res.json();
 
+          console.log(dayIndex);
+          console.log(JSON.stringify(data, null, 2));
+          
+          const warningIconSources = [];
+
+          if (data.WTS) {
+            console.log(data.WTS.actionCode);
+            //if (data.WTS.actionCode !== "CANCEL") {
+              warningIconSources.push('./icons/WTS.png');
+            //}
+          }
+          if (data.WHOT) {
+            console.log(data.WHOT.actionCode);
+            if (data.WHOT.actionCode !== "CANCEL") {
+              warningIconSources.push('./icons/WHOT.png');
+            }
+          }
+          if (data.WCOLD) {
+            console.log(data.WCOLD.actionCode);
+            if (data.WCOLD.actionCode !== "CANCEL") {
+              warningIconSources.push('./icons/WCOLD.png');
+            }
+          }
+          if (data.WFROST) {
+            console.log(data.WFROST.actionCode);
+            if (data.WFROST.actionCode !== "CANCEL") {
+              warningIconSources.push('./icons/WFROST.png');
+            }
+          }
+          if (data.WTCSGNL) {
+            console.log(data.WTCSGNL.actionCode);
+            if (data.WTCSGNL.actionCode !== "CANCEL" || data.WTCSGNL.code !== "CANCEL") {
+              if (data.WTCSGNL.code === "TC1") {
+                warningIconSources.push('./icons/TC1.png');
+              } else if (data.WTCSGNL.code === "TC3") {
+                warningIconSources.push('./icons/TC3.png');
+              } else if (data.WTCSGNL.code === "TC8NE") {
+                warningIconSources.push('./icons/TC8NE.png');
+              } else if (data.WTCSGNL.code === "TC8SE") {
+                warningIconSources.push('./icons/TC8SE.png');
+              } else if (data.WTCSGNL.code === "TC8NW") {
+                warningIconSources.push('./icons/TC8NW.png');
+              } else if (data.WTCSGNL.code === "TC8SW") {
+                warningIconSources.push('./icons/TC8SW.png');
+              } else if (data.WTCSGNL.code === "TC9") {
+                warningIconSources.push('./icons/TC9.png');
+              } else if (data.WTCSGNL.code === "TC10") {
+                warningIconSources.push('./icons/TC10.png');
+              } 
+            }
+          }
+          if (data.WRAIN) {
+            console.log(data.WRAIN.actionCode);
+            //if (data.WRAIN.actionCode !== "CANCEL") {
+              if (data.WRAIN.code === "WRAINA") {
+                warningIconSources.push('./icons/WRAINA.png');
+              } else if (data.WRAIN.code === "WRAINR") {
+                warningIconSources.push('./icons/WRAINR.png');
+              } else if (data.WRAIN.code === "WRAINB") {
+                warningIconSources.push('./icons/WRAINB.png');
+              }
+            //}
+          }
+          renderWeatherIcons(warningIconSources);
+        }
+        //}
       } catch (err) {
         console.error("Fetch weather icon error:", err);
       }
     }
-
     updateWeatherIcon();
     // 每 10 分鐘自動更新一次
-    setInterval(updateWeatherIcon, 600000);
+    // setInterval(updateWeatherIcon, 600000);
   </script>
 </body>
 </html>
