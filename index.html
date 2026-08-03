@@ -4,7 +4,15 @@
   <meta charset="utf-8">
   <style>
     body { margin: 0; background: transparent; display: flex; justify-content: center; align-items: center; }
-    img { width: 60px; height: 60px; object-fit: contain; }
+    img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      filter: contrast(250%) brightness(60%) drop-shadow(0 0 0.5px #000);
+      
+      transition: opacity 0.2s;
+    }
+
   </style>
 </head>
 <body>
@@ -34,6 +42,9 @@
     // 2. Fetch 外來天氣 API (例如 HKO Open Data)
     async function updateWeatherIcon() {
       try {
+        let iconCode = '';
+        const imgElement = document.getElementById('weatherIcon');
+
         if (dayIndex < 9) {
           res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
           
@@ -43,15 +54,21 @@
           console.log(JSON.stringify(data, null, 2));
           
           // 假設從 API 攞到嘅 icon 號碼
-          const iconCode = data.weatherForecast[dayIndex].ForecastIcon; 
+          iconCode = data.weatherForecast[dayIndex].ForecastIcon; 
 
           // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
-          const imgElement = document.getElementById('weatherIcon');
           //if (iconMap[iconCode]) {
           //  imgElement.src = iconMap[iconCode];
           //} else {
             // Default Icon (預設圖片)
-          imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
+          //const imgLoader = new Image();
+          //const targetUrl = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
+          imgElement.src = `./icons/pic${iconCode}.png`;
+          //imgLoader.onload = () => {
+            // 確定圖片下載完畢才賦值給 DOM
+          //  document.getElementById('weatherIcon').src = targetUrl;
+          //};
+          // imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
         } else if (dayIndex == 99) {
           res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
           
@@ -61,15 +78,15 @@
           console.log(JSON.stringify(data, null, 2));
           
           // 假設從 API 攞到嘅 icon 號碼
-          const iconCode = data.icon; 
+          iconCode = data.icon; 
 
           // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
-          const imgElement = document.getElementById('weatherIcon');
           //if (iconMap[iconCode]) {
           //  imgElement.src = iconMap[iconCode];
           //} else {
             // Default Icon (預設圖片)
-          imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
+          //imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
+          imgElement.src = `./icons/pic${iconCode}.png`;
         }
        
         //}
