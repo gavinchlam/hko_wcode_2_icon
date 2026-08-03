@@ -212,6 +212,20 @@
           }
           //warningIconSources.push('./icons/WTS.png');
           renderWeatherIcons(warningIconSources, 'warning');
+        } else if (dayIndex == 110) { //天氣警告一覽
+          const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en');
+          
+          const data = await res.json();
+
+          console.log(dayIndex);
+          console.log(JSON.stringify(data, null, 2));
+          
+          const warningIconSources = [];
+
+          warningIconSources.push('./icons/WTS.png');
+          warningIconSources.push('./icons/WHOT.png');
+          
+          renderWeatherIcons(warningIconSources, 'warning');
         }
         //}
       } catch (err) {
