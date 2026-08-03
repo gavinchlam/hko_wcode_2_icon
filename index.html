@@ -128,9 +128,9 @@
 
           if (data.WTS) {
             console.log(data.WTS.actionCode);
-            //if (data.WTS.actionCode !== "CANCEL") {
+            if (data.WTS.actionCode !== "CANCEL") {
               warningIconSources.push('./icons/WTS.png');
-            //}
+            }
           }
           if (data.WHOT) {
             console.log(data.WHOT.actionCode);
@@ -174,7 +174,7 @@
           }
           if (data.WRAIN) {
             console.log(data.WRAIN.actionCode);
-            //if (data.WRAIN.actionCode !== "CANCEL") {
+            if (data.WRAIN.actionCode !== "CANCEL") {
               if (data.WRAIN.code === "WRAINA") {
                 warningIconSources.push('./icons/WRAINA.png');
               } else if (data.WRAIN.code === "WRAINR") {
@@ -182,7 +182,7 @@
               } else if (data.WRAIN.code === "WRAINB") {
                 warningIconSources.push('./icons/WRAINB.png');
               }
-            //}
+            }
           }
           //warningIconSources.push('./icons/WTS.png');
           renderWeatherIcons(warningIconSources, 'warning');
