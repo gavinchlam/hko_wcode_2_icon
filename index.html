@@ -7,6 +7,8 @@
     #weatherIconContainer {
       display: flex;
       flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
       gap: 8px;
     }
     img {
@@ -47,17 +49,26 @@
       dayIndex = 0; 
     }
 
-    function renderWeatherIcons(sources) {
+    function renderWeatherIcons(sources, type) {
       const container = document.getElementById('weatherIconContainer');
       container.innerHTML = '';
 
-      sources.forEach((src) => {
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = 'weather icon';
-        img.classList.add('warning-icon');
-        container.appendChild(img);
-      });
+      if (type == "forecast") {
+        sources.forEach((src) => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = 'weather icon';
+          container.appendChild(img);
+        });
+      } else if (type == "warning") {
+        sources.forEach((src) => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = 'weather icon';
+          img.classList.add('warning-icon');
+          container.appendChild(img);
+        });
+      }
     }
 
     // 2. Fetch 外來天氣 API (例如 HKO Open Data)
@@ -81,7 +92,7 @@
           //  imgElement.src = iconMap[iconCode];
           //} else {
             // Default Icon (預設圖片)
-          renderWeatherIcons([`./icons/pic${iconCode}.png`]);
+          renderWeatherIcons([`./icons/pic${iconCode}.png`], 'forecast');
           //imgLoader.onload = () => {
             // 確定圖片下載完畢才賦值給 DOM
           //  document.getElementById('weatherIcon').src = targetUrl;
@@ -104,7 +115,7 @@
           //} else {
             // Default Icon (預設圖片)
           //imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
-          renderWeatherIcons([`./icons/pic${iconCode}.png`]);
+          renderWeatherIcons([`./icons/pic${iconCode}.png`], 'forecast');
         } else if (dayIndex == 100) { //天氣警告一覽
           const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en');
           
@@ -173,7 +184,8 @@
               }
             //}
           }
-          renderWeatherIcons(warningIconSources);
+          //warningIconSources.push('./icons/WTS.png');
+          renderWeatherIcons(warningIconSources, 'warning');
         }
         //}
       } catch (err) {
