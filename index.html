@@ -26,12 +26,16 @@
       width: 60px;
       height: 60px;
       object-fit: contain;
-      filter: contrast(250%) brightness(60%) drop-shadow(0 0 0.5px #000);
       transition: opacity 0.2s;
     }
     .warning-icon {
       width: 40px;
       height: 40px;
+    }
+    .weather-icon {
+      width: 60px;
+      height: 60px;
+      filter: contrast(250%) brightness(60%) drop-shadow(0 0 0.5px #000);
     }
 
   </style>
@@ -59,13 +63,18 @@
       WFROST: './icons/WFROST.png'
     };
 
-    // 1. 讀取 URL 網址裡面的 ?d= 參數
+    // 1. 讀取 URL 網址裡面的 ?type= 和 ?d= 參數
     const urlParams = new URLSearchParams(window.location.search);
-    
-    // 如果冇傳 ?d=，預設為 0 (翌日)；並用 parseInt 確保係數字
-    let dayIndex = parseInt(urlParams.get('d'), 10);
-    if (isNaN(dayIndex) || dayIndex < 0) {
-      dayIndex = 0; 
+    const type = urlParams.get('type');
+
+    let dayIndex = -1;
+    console.log(type);
+    if (type === 'weather') {
+      dayIndex = parseInt(urlParams.get('d'), 10);
+      if (isNaN(dayIndex) || dayIndex < 0) {
+        console.error('Missing or invalid ?d= query parameter for type=weather');
+        document.body.classList.add('ready');
+      }
     }
 
     function toDataUrl(src) {
@@ -109,6 +118,8 @@
         img.alt = 'weather icon';
         if (type === 'warning') {
           img.classList.add('warning-icon');
+        } else if (type === 'weather') {
+          img.classList.add('weather-icon');
         }
         container.appendChild(img);
         return img;
@@ -141,47 +152,29 @@
       try {
         let iconCode = '';
 
-        if (dayIndex < 9) {
-          const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
-          
-          const data = await res.json();
+        if (type === "weather") {
+          if (dayIndex >=0 && dayIndex < 9) { // 天氣預報
+            const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
+            
+            const data = await res.json();
 
-          console.log(dayIndex);
-          console.log(JSON.stringify(data, null, 2));
-          
-          // 假設從 API 攞到嘅 icon 號碼
-          iconCode = data.weatherForecast[dayIndex].ForecastIcon; 
+            console.log(dayIndex);
+            console.log(JSON.stringify(data, null, 2));
+            iconCode = data.weatherForecast[dayIndex].ForecastIcon; 
 
-          // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
-          //if (iconMap[iconCode]) {
-          //  imgElement.src = iconMap[iconCode];
-          //} else {
-            // Default Icon (預設圖片)
-          renderWeatherIcons([`./icons/pic${iconCode}.png`], 'forecast');
-          //imgLoader.onload = () => {
-            // 確定圖片下載完畢才賦值給 DOM
-          //  document.getElementById('weatherIcon').src = targetUrl;
-          //};
-          // imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
-        } else if (dayIndex == 99) { // 即時天氣
-          const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en');
-          
-          const data = await res.json();
+            renderWeatherIcons([`./icons/pic${iconCode}.png`], 'weather');
 
-          console.log(dayIndex);
-          console.log(JSON.stringify(data, null, 2));
-          
-          // 假設從 API 攞到嘅 icon 號碼
-          iconCode = data.icon; 
+          } else if (dayIndex === -1) { // 即時天氣
+            const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en');
+            const data = await res.json();
 
-          // 3. 用 IF / ELSE 或 Mapping 換相對應嘅圖
-          //if (iconMap[iconCode]) {
-          //  imgElement.src = iconMap[iconCode];
-          //} else {
-            // Default Icon (預設圖片)
-          //imgElement.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`;
-          renderWeatherIcons([`./icons/pic${iconCode}.png`], 'forecast');
-        } else if (dayIndex == 100) { //天氣警告一覽
+            console.log(dayIndex);
+            console.log(JSON.stringify(data, null, 2));
+            iconCode = data.icon; 
+
+            renderWeatherIcons([`./icons/pic${iconCode}.png`], 'weather');
+          }
+        } else if (type === 'warning') {
           const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en');
           
           const data = await res.json();
@@ -235,7 +228,7 @@
           }
           //warningIconSources.push('./icons/WTS.png');
           renderWeatherIcons(warningIconSources, 'warning');
-        } else if (dayIndex == 110) { //天氣警告一覽
+        } else if (type === "warning_debug") { //For debugging purpose only
           const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en');
           
           const data = await res.json();
@@ -250,14 +243,11 @@
           
           renderWeatherIcons(warningIconSources, 'warning');
         }
-        //}
       } catch (err) {
         console.error("Fetch weather icon error:", err);
       }
     }
     updateWeatherIcon();
-    // 每 10 分鐘自動更新一次
-    // setInterval(updateWeatherIcon, 600000);
   </script>
 </body>
 </html>
