@@ -10,7 +10,7 @@
       justify-content: center;
       align-items: center;
       opacity: 0;
-      transition: opacity 0.2s ease;
+      transition: none;
     }
     body.ready {
       opacity: 1;
@@ -71,7 +71,7 @@
     console.log(type);
     if (type === 'weather') {
       dayIndex = parseInt(urlParams.get('d'), 10);
-      if (isNaN(dayIndex) || dayIndex < 0) {
+      if (isNaN(dayIndex)) {
         console.error('Missing or invalid ?d= query parameter for type=weather');
         document.body.classList.add('ready');
       }
